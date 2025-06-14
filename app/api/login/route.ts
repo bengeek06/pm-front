@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
+import logger from "@/lib/logger";
 
 const isLocal = (process.env.APP_ENV || "local") === "local";
 
 export async function POST(req: NextRequest) {
-  console.log("APP_ENV:", process.env.APP_ENV);
-  console.log("isLocal:", isLocal);
+  logger.info({ env: process.env.APP_ENV, isLocal }, "Login endpoint called");
 
   if (isLocal) {
     // Bouchon local : simule une réponse de succès
-    console.log("Bouchon local utilisé");
     const response = NextResponse.json({
       user_id: "mock-user",
       company_id: "mock-company",
