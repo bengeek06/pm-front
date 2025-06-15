@@ -23,7 +23,8 @@ export default function Home() {
     const password = (form.elements.namedItem("password") as HTMLInputElement).value;
 
     try {
-      const res = await fetch("http://localhost:5002/login", {
+      // Appel à l'API Next.js (proxy)
+      const res = await fetch("/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -33,13 +34,23 @@ export default function Home() {
         throw new Error("Identifiants invalides");
       }
 
-      const data = await res.json();
-      console.log("Réponse login :", data);
-      if (data.access_token) {
-        localStorage.setItem("token", data.access_token);
-        router.push("/projects");
+      // Vérification du token et récupération des infos utilisateur
+      const verifyRes = await fetch("/api/verify", {
+        method: "GET",
+        credentials: "include", // important pour envoyer les cookies
+      });
+
+      if (!verifyRes.ok) {
+        throw new Error("Impossible de récupérer les informations utilisateur");
+      }
+
+      const userData = await verifyRes.json();
+      const { company_id, user_id } = userData;
+
+      if (company_id && user_id) {
+        router.push(`/companies/${company_id}/users/${user_id}/welcome`);
       } else {
-        throw new Error("Token manquant dans la réponse");
+        throw new Error("Informations utilisateur manquantes");
       }
     } catch (err: unknown) {
       if (err instanceof Error) {
