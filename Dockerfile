@@ -5,7 +5,8 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 
-# Le code source sera monté par Docker Compose, pas besoin de COPY .
+# Crée un dossier pour les dépendances
+VOLUME ["/app/node_modules"]
 
 EXPOSE 3000
 
